@@ -15,6 +15,22 @@ def map_line(line):
         return stack_opertion('+')
     elif line.startswith('sub'):
         return stack_opertion('-')
+    elif line.startswith('neg'):
+        return ['@0', 'A=M-1', 'M=-M']
+    elif line.startswith('eq'):
+        return ['@0', 'A=M-1', 'D=M', '@0', 'A=M-1', 'D=M-D', '@TRUE', '0;JEQ', '@0', 'A=M-1', 'M=0', '@END', '0;JMP', '(TRUE)', '@0', 'A=M-1', 'M=-1', '(END)']
+    elif line.startswith('gt'):
+        return ['@0', 'A=M-1', 'D=M', '@0', 'A=M-1', 'D=M-D', '@TRUE', '0;JGT', '@0', 'A=M-1', 'M=0', '@END', '0;JMP', '(TRUE)', '@0', 'A=M-1', 'M=-1', '(END)']
+    elif line.startswith('lt'):
+        return ['@0', 'A=M-1', 'D=M', '@0', 'A=M-1', 'D=M-D', '@TRUE', '0;JLT', '@0', 'A=M-1', 'M=0', '@END', '0;JMP', '(TRUE)', '@0', 'A=M-1', 'M=-1', '(END)']
+    elif line.startswith('and'):
+        return stack_opertion('&')
+    elif line.startswith('or'):
+        return stack_opertion('|')
+    elif line.startswith('not'):
+        return ['@0', 'A=M-1', 'M=!M']
+    else:
+        return []
 
 
 def convert_vm_to_hack(path, vm_file_name):
@@ -34,6 +50,6 @@ def convert_vm_to_hack(path, vm_file_name):
 
 
 if __name__ == '__main__':
-    path = 'C:\\Users\\Asuspcc\\TclWorks\\projects\\07\\StackArithmetic\\SimpleAdd\\'
-    vm_file_name = 'SimpleAdd.vm'
+    path = 'C:\\Users\\Asuspcc\\TclWorks\\projects\\07\\StackArithmetic\\StackTest\\'
+    vm_file_name = 'StackTest.vm'
     convert_vm_to_hack(path, vm_file_name)
