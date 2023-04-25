@@ -36,12 +36,11 @@ def map_line(line):
 def convert_vm_to_hack(path, vm_file_name):
 
     with open(path + vm_file_name, 'r') as vm_f:
-        only_code_lines = filter(lambda line: not line.startswith(
-            r'//') and not line.isspace(), vm_f.readlines())
-        vm_lines = map(lambda line: line.strip(), only_code_lines)
-
+        vm_code = vm_f.readlines()
+        only_code_lines = [line.strip() for line in vm_code if not line.startswith(
+            r'//') and not line.isspace()]
         hack_code = []
-        for line in vm_lines:
+        for line in only_code_lines:
             hack_code += map_line(line)
 
         asm_file_name = vm_file_name.replace('.vm', '.asm')
