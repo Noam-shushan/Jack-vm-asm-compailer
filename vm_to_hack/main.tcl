@@ -2,7 +2,7 @@
 # Shmoel Biscerg 324485101
 
 source "../file_handler.tcl"
-source "mapper.tcl"
+source "parser.tcl"
 
 
 # run: tclsh main.tcl ../projects/07/StackArithmetic/SimpleAdd/
@@ -39,6 +39,6 @@ if {[info script] eq $argv0} {
         set asm_file_path "$dir$asm_file_name"
         
         # write the asm code to a .asm file
-        write_file $asm_file_path [join $asm_code "\n"]
+        write_file $asm_file_path [join $asm_code ""]
     }
 }
