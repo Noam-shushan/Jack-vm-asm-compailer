@@ -1,9 +1,7 @@
 
 
-set obj {}
-set code [list a 1 b 2 c 3]
-set rows [join $code "\n"]
-lappend obj "$rows \n\n" 
-lappend obj {*}[list "noam" "dan"]
+proc remove_inline_comments {line} {
+    return [regsub -all {\/\/.*$} $line ""]
+}
 
-puts [join $obj ""]
+puts [remove_inline_comments "hello // world // this is a comment"]

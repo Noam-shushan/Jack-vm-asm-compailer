@@ -4,29 +4,39 @@ source "stack_cmd/push_cmd.tcl"
 source "stack_cmd/pop_cmd.tcl"
 
 # map line of vm code to hack code
-proc map_line {line} {
+proc map_line {line file_name} {
     set line_split [split $line " "]
     puts "map_line -> line_split: $line_split"
     
-    if {[llength $line_split] == 1} {
-        set cmd [lindex $line_split 0]
-        puts "map_line -> cmd: $cmd"
-        return [map_one_literal_cmd $cmd]
-    } elseif {[llength $line_split] == 3} {
-        set cmd [lindex $line_split 0]
-        set segment [lindex $line_split 1]
-        set value [lindex $line_split end]
+    switch [llength $line_split] {
+        1 {
+            set cmd [lindex $line_split 0]
+            puts "map_line -> cmd: $cmd"
+            return [map_one_literal_cmd $cmd]
+        }
+        2 {
+            set cmd [lindex $line_split 0]
+            set label [lindex $line_split 1]
+            
+            puts "map_line -> cmd: $cmd, label: $label"
+            
+            return [map_tow_literal_cmd $cmd $label $file_name]
+        }
+        3 {
+            set cmd [lindex $line_split 0]
+            set segment [lindex $line_split 1]
+            set value [lindex $line_split end]
 
-        puts "map_line -> cmd: $cmd"
-        puts "map_line -> segment: $segment"
-        puts "map_line -> value: $value"
-
-        return [map_three_literal_cmd $cmd $segment $value]
-    } else {
-        return ""
+            puts "map_line -> cmd: $cmd, segment: $segment, value: $value"
+            
+            return [map_three_literal_cmd $cmd $segment $value]
+        }
+        default {
+            return ""
+        }
     }
-}
 
+}
 
 proc map_one_literal_cmd {cmd} {
     switch $cmd {
@@ -56,6 +66,23 @@ proc map_one_literal_cmd {cmd} {
         }
         "lt" {
             return [compare_operation "JLT"]
+        }
+        default {
+            return ""
+        }
+    }
+}
+
+proc map_tow_literal_cmd {cmd label file_name} {
+    switch $cmd {
+        "label" {
+            return [label $label $file_name]
+        }
+        "goto" {
+            return [goto $label $file_name]
+        }
+        "if-goto" {
+            return [if_goto $label $file_name]
         }
         default {
             return ""

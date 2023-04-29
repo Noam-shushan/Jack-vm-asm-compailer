@@ -32,7 +32,7 @@ if {[info script] eq $argv0} {
         set vm_code [read_file $file_path]
         
         # convert the vm code to asm code
-        set asm_code [parse_vm_to_hack $vm_code]
+        set asm_code [parse_vm_to_hack $vm_code [file rootname $vm_file_name]]
         
         # set the name of the .asm file to be the same as the .vm file
         set asm_file_name [string map {".vm" ".asm"} $vm_file_name]
