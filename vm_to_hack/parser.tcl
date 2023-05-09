@@ -18,7 +18,7 @@ proc parse_vm_to_hack {vm_code file_name} {
             
             lappend hack_code "// $line\n" 
             set joind_result [join $result "\n"]
-            lappend hack_code $joind_result  "\n"
+            lappend hack_code "$joind_result\n\n"
         }
     }
     return $hack_code
