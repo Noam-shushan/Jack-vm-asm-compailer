@@ -17,7 +17,6 @@ set IDENTIFIER "identifier"
 set INT_CONST "integerConstant"
 set STRING_CONST "stringConstant"
 
-
 # This function takes in a line of Jack code and returns a list of tokens in the line.
 # :param line: line of Jack code
 # :return: list of tokens in line
@@ -31,6 +30,7 @@ proc parse_line_to_tokens {line} {
     global INT_CONST
     global STRING_CONST
 
+    # regex for symbols, operators, reserved words, string, identifier, and integer constant
     set symbols_reg {[()\[\]\{\},;=\.]}
     set operators_reg {[+\-*/&|~<>]}
     set reserved_words_reg {\y(?:class|constructor|method|function|int|boolean|char|static|field|let|do|if|else|while|return|true|false|null|this|var)\y}
@@ -38,18 +38,17 @@ proc parse_line_to_tokens {line} {
     set identifier_reg {\w+}
     set int_const_reg {\d+}
 
+    # get all tokens in line using regex
     set regex_expression "$symbols_reg|$operators_reg|$reserved_words_reg|$string_reg|$identifier_reg|$int_const_reg"
     set tokens [regexp -all -inline $regex_expression $line]
+
+    # used to indentify if we are in a string and to store the string
     set is_in_string 0
     set string {}
-    
-    foreach t $tokens {
-        puts $t
-    }
-    puts "------------------"
 
     foreach token $tokens {
-        if {$is_in_string} {
+        if {$is_in_string} { 
+        #   if we are in a string, we need to check if we have reached the end of the string 
             if {$token == "\""} {
                 lappend result [list [join $string " "] $STRING_CONST]
                 set string {}
@@ -58,14 +57,20 @@ proc parse_line_to_tokens {line} {
                 lappend string $token
             }
         } elseif {$token == "\""} {
+        #  if we are not in a string, we need to check if we have reached the start of a string
             set is_in_string 1
         } elseif {[lsearch -exact $symbols $token] != -1} {
+        #  check if token is a symbol
             lappend result [list $token $SYMBOL]
         } elseif {[lsearch -exact $reserved_words $token] != -1} {
+        #  check if token is a reserved word
             lappend result [list $token $KEYWORD]
         } elseif {[string is integer -strict $token]} {
+        #  check if token is an integer constant
             lappend result [list $token $INT_CONST]
         } elseif {[lsearch -exact $operators $token] != -1} {
+        #  check if token is an operator
+        # handle XML special characters
             if {$token == "<"} {
                 lappend result [list "&lt;" $SYMBOL]
             } elseif {$token == ">"} {
@@ -76,14 +81,15 @@ proc parse_line_to_tokens {line} {
                 lappend result [list $token $SYMBOL]
             }
         } elseif {[string is space $token]} {
+        #  ignore spaces
             continue
         } else {
+        #  dosen't match any of the above => identifier
             lappend result [list $token $IDENTIFIER]
         }
     }
     return $result
 }
-
 
 # This function takes in a token and its token type and returns an XML representation of the token.
 # :param token: token value
@@ -92,7 +98,6 @@ proc parse_line_to_tokens {line} {
 proc get_xml_token {token token_type} {
     return "<$token_type>$token</$token_type>"
 }
-
 
 # This function takes in the filename of a Jack file and generates an XML representation of the Jack file.
 # :param filename: filename of Jack file
@@ -109,7 +114,6 @@ proc generate_xml_file {filename} {
     puts $xml_file "</tokens>"
     close $xml_file
 }
-
 
 # This function takes in the filename of a Jack file and returns a list of code lines in the file with no comments.
 # :param filename: filename of Jack file
@@ -154,5 +158,3 @@ proc get_jack_file_lines {filename} {
     close $jack_file
     return $result
 }
-
-generate_xml_file "Jack_Test.jack"
