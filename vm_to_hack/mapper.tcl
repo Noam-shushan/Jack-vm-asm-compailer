@@ -2,6 +2,7 @@ source "compute_cmd.tcl"
 source "flow_ctlr_cmd.tcl"
 source "stack_cmd/push_cmd.tcl"
 source "stack_cmd/pop_cmd.tcl"
+source "function_call.tcl"
 
 # map line of vm code to hack code
 proc map_line {line file_name} {
@@ -28,7 +29,6 @@ proc map_line {line file_name} {
             set value [lindex $line_split end]
 
             puts "map_line -> cmd: $cmd, segment: $segment, value: $value"
-            
             return [map_three_literal_cmd $cmd $segment $value]
         }
         default {
@@ -67,6 +67,9 @@ proc map_one_literal_cmd {cmd} {
         "lt" {
             return [compare_operation "JLT"]
         }
+        "return" {
+            return [return_cmd]
+        }
         default {
             return ""
         }
@@ -97,6 +100,12 @@ proc map_three_literal_cmd {cmd segment value} {
         }
         "pop" {
             return [pop $segment $value]
+        }
+        "call" {
+            return [call_cmd $segment $value]
+        }
+        "function" {
+            return [func_cmd $segment $value]
         }
         default {
             return ""
