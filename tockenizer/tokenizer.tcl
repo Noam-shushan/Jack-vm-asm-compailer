@@ -34,7 +34,7 @@ proc parse_line_to_tokens {line} {
     set symbols_reg {[()\[\]\{\},;=\.]}
     set operators_reg {[+\-*/&|~<>]}
     set reserved_words_reg {\y(?:class|constructor|method|function|int|boolean|char|static|field|let|do|if|else|while|return|true|false|null|this|var)\y}
-    set string_reg {\"\w+\"} 
+    set string_reg {[\"]} 
     set identifier_reg {\w+}
     set int_const_reg {\d+}
 
@@ -42,7 +42,11 @@ proc parse_line_to_tokens {line} {
     set tokens [regexp -all -inline $regex_expression $line]
     set is_in_string 0
     set string {}
-    puts $tokens
+    
+    foreach t $tokens {
+        puts $t
+    }
+    puts "------------------"
 
     foreach token $tokens {
         if {$is_in_string} {
