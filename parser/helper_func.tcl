@@ -1,8 +1,11 @@
+
 set TYPES [list "int" "char" "boolean" "void"]
 proc is_type {type} {
     global TYPES
     return [expr [lsearch -exact $TYPES $type] != -1]
 }
+
+
 
 set SUBROUTINE_TOKENS [list "function" "method" "constructor" ]
 proc is_subroutine {token} {

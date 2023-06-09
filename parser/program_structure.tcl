@@ -12,6 +12,7 @@
 
 source "helper_func.tcl"
 source "symbols.tcl"
+source "statements.tcl"
 
 # class -> "class" className "{" classVarDec* subroutineDec* "}"
 proc complie_class { tokens_name } {
@@ -24,7 +25,7 @@ proc complie_class { tokens_name } {
     set token [dict get $next_token token]
     if { $label == "keyword" && $token == "class" } {
         set output "<class>\n"
-        set output "$output\t<keyword>class</keyword>\n"
+        set output "$output  <keyword> class </keyword>\n"
         set tokens [lrange $tokens 1 end]
     } else {
         error "ERROR: expected class. in complie_class"
@@ -35,8 +36,7 @@ proc complie_class { tokens_name } {
     set label [dict get $next_token label]
     set identifier [dict get $next_token token]
     if { $label == "identifier" } {
-        puts "identifier: $identifier, label: $label"
-        set output "$output\t<identifier>$identifier</identifier>\n"
+        set output "$output  <identifier> $identifier </identifier>\n"
         set tokens [lrange $tokens 1 end]
     } else {
         error "ERROR: expected class name. in complie_class"
@@ -46,26 +46,25 @@ proc complie_class { tokens_name } {
     set symbol [complie_symbol tokens "{"]
     puts "symbol: $symbol"
     if { $symbol != "" } {
-        set output "$output\t$symbol"
+        set output "$output  $symbol"
     } else {
         error "invalid statement missing '\{'. in complie_class"
     }
     puts "output:\n$output"
     set next_token [lindex $tokens 0]
-    puts "next_token: $next_token // in complie_class"
 
     set class_var_dec [complie_classVarDec tokens]
-    set output "$output\t${class_var_dec}"
-    puts "output:\n$output"
+    set output "$output  $class_var_dec"
+    puts "output:\n$output // after complie_classVarDec"
 
     set subroutine [complie_subroutine tokens]
-    set output "$output\t${subroutine}"
-    puts "output:\n$output"
+    set output "$output  $subroutine"
+    puts "output:\n$output // after complie_subroutine"
 
     # }
     set symbol [complie_symbol tokens "}"]
     if { $symbol != "" } {
-        set output "$output\t$symbol"
+        set output "$output  $symbol"
     } else {
         error "invalid statement missing \}. in complie_class"
     }
@@ -82,20 +81,19 @@ proc complie_classVarDec { tokens_name } {
     set next_token [lindex $tokens 0]
     set label [dict get $next_token label]
     set token [dict get $next_token token]
-    puts "label: $label, token: $token // in complie_classVarDec"
     if { $label == "keyword" 
         && [expr { $token == "static" || $token == "field"}] } { 
         set output "<classVarDec>\n"
-        set output "$output\t<keyword>$token</keyword>\n"
+        set output "$output  <keyword> $token </keyword>\n"
         set tokens [lrange $tokens 1 end]
     } else {
         return ""
     }
-    puts "output:\n$output"
+
 
     # type
     set type [complie_type tokens]
-    set output "$output\t${type}"
+    set output "$output  $type"
 
     # varName
     set i 0
@@ -103,10 +101,10 @@ proc complie_classVarDec { tokens_name } {
         set label [dict get $ntoken label]
         set token [dict get $ntoken token]
         if { $label == "identifier" && ($i % 2) == 0 } {
-            set output "$output\t<identifier>$token</identifier>\n"
+            set output "$output  <identifier> $token </identifier>\n"
             set tokens [lrange $tokens 1 end]
         } elseif { $label == "symbol" && $token == "," && ($i % 2) == 1 } {
-            set output "$output\t<symbol>,</symbol>\n"
+            set output "$output  <symbol> , </symbol>\n"
             set tokens [lrange $tokens 1 end] 
         } else {
             break
@@ -116,7 +114,7 @@ proc complie_classVarDec { tokens_name } {
     # ;
     set symbol [complie_symbol tokens ";"]
     if { $symbol != "" } {
-        set output "$output\t${symbol}"
+        set output "$output  $symbol"
     } else {
         error "invalid statement missing ;. in complie_classVarDec"
     }
@@ -125,7 +123,7 @@ proc complie_classVarDec { tokens_name } {
 
 # subroutineDec -> ("constructor" | "function" | "method") 
 #                  ("void" | type) subroutineName 
-#                   "(" parameterList ")" subroutineBody
+#                  "(" parameterList ")" subroutineBody
 proc complie_subroutine { tokens_name } {
     upvar 1 $tokens_name tokens
 
@@ -135,10 +133,10 @@ proc complie_subroutine { tokens_name } {
     set next_token [lindex $tokens 0]
     set label [dict get $next_token label]
     set token [dict get $next_token token]
-    puts "label: $label, token: $token"
+    puts "label: $label, token: $token // in complie_subroutine before all"
     if { [is_subroutine $token] } { 
         set output "<subroutineDec>\n"
-        set output "$output\t<keyword>$token</keyword>\n"
+        set output "$output  <keyword> $token </keyword>\n"
         set tokens [lrange $tokens 1 end]
     } else {
         return ""
@@ -148,21 +146,22 @@ proc complie_subroutine { tokens_name } {
     set next_token [lindex $tokens 0]
     set label [dict get $next_token label]
     set token [dict get $next_token token]
+    puts "label: $label, token: $token // in complie_subroutine before void or type"
     if { $label == "keyword" && [is_type $token] } { 
-        set output "$output\t<keyword>$token</keyword>\n"
+        set output "$output  <keyword> $token </keyword>\n"
         set tokens [lrange $tokens 1 end]
     } else {
         error "ERROR: expected void or type after subroutineDec"
     }
 
-    puts "output:\n$output"
+    puts "output:\n$output // before subroutineName"
     # subroutineName
     set next_token [lindex $tokens 0]
     set label [dict get $next_token label]
     set token [dict get $next_token token]
     if { $label == "identifier" && [is_valid_identifier $token] } { 
         puts "label: $label, token: $token // subroutineName"
-        set output "$output\t<identifier>$token</identifier>\n"
+        set output "$output  <identifier> $token </identifier>\n"
         set tokens [lrange $tokens 1 end]
     } else {
         error "ERROR: expected subroutineName after subroutineDec"
@@ -171,7 +170,7 @@ proc complie_subroutine { tokens_name } {
     # (
     set symbol [complie_symbol tokens "("]
     if { $symbol != "" } {
-        set output "$output\t${symbol}"
+        set output "$output  $symbol"
     } else {
         error "invalid statement missing (. in complie_subroutine"
     }
@@ -180,12 +179,12 @@ proc complie_subroutine { tokens_name } {
 
     # parameterList
     set parameter_list [complie_parameterList tokens]
-    set output "$output\t${parameter_list}"
+    set output "$output  $parameter_list"
     
     # )
     set symbol [complie_symbol tokens ")"]
     if { $symbol != "" } {
-        set output "$output\t${symbol}"
+        set output "$output  $symbol"
     } else {
         error "invalid statement missing ). in complie_subroutine"
     }
@@ -194,7 +193,7 @@ proc complie_subroutine { tokens_name } {
 
     # subroutineBody
     set subroutine_body [complie_subroutineBody tokens]
-    set output "$output\t${subroutine_body}"
+    set output "$output  $subroutine_body\n"
     
     set output "$output</subroutineDec>\n"
     return $output
@@ -211,13 +210,13 @@ proc complie_parameterList { tokens_name } {
         set token [dict get $ntoken token]
         puts "label: $label, token: $token // in complie_parameterList"
         if { $label == "keyword" && [is_type $token] && ($i % 3) == 0 } {
-            set output "$output\t<keyword>$token</keyword>\n"
+            set output "$output  <keyword> $token </keyword>\n"
             set tokens [lrange $tokens 1 end]
         } elseif { $label == "identifier" && [is_valid_identifier $token] && ($i % 3) == 1 } {
-            set output "$output\t<identifier>$token</identifier>\n"
+            set output "$output  <identifier> $token </identifier>\n"
             set tokens [lrange $tokens 1 end]
         } elseif { $label == "symbol" && $token == "," && ($i % 3) == 2 } {
-            set output "$output\t<symbol>,</symbol>\n"
+            set output "$output  <symbol> , </symbol>\n"
             set tokens [lrange $tokens 1 end] 
         } else {
             break
@@ -235,7 +234,7 @@ proc complie_subroutineBody { tokens_name } {
     # {
     set symbol [complie_symbol tokens "\{"]
     if { $symbol != "" } {
-        set output "$output\t${symbol}"
+        set output "$output  $symbol"
     } else {
         error "invalid statement missing \{. in complie_subroutineBody"
     }
@@ -244,20 +243,22 @@ proc complie_subroutineBody { tokens_name } {
 
     # varDec*
     set var_dec [complie_varDec tokens]
-    set output "$output\t${var_dec}"
+    set output "$output  $var_dec"
 
     puts "output:\n$output // before statements"
     
     # statements
     set statements [complie_statements tokens]
-    set output "$output\t${statements}"
+    set output "$output  $statements"
+
+    puts "output:\n$output // after statements"
     
     # }
-    set symbol [complie_symbol tokens "}"]
+    set symbol [complie_symbol tokens "\}"]
     if { $symbol != "" } {
-        set output "$output\t${symbol}"
+        set output "$output  $symbol"
     } else {
-        error "invalid statement missing }. in complie_subroutineBody"
+        error "invalid statement missing \}. in complie_subroutineBody"
     }
 
     set output "$output</subroutineBody>\n"
@@ -268,13 +269,14 @@ proc complie_subroutineBody { tokens_name } {
 proc complie_varDec { tokens_name } {
     upvar 1 $tokens_name tokens
 
+    set output ""
     # var
     set next_token [lindex $tokens 0]
     set label [dict get $next_token label]
     set token [dict get $next_token token]
     if { $label == "keyword" && $token == "var" } {
         set output "<varDec>\n" 
-        set output "$output\t<keyword>var</keyword>\n"
+        set output "$output  <keyword> var </keyword>\n"
         set tokens [lrange $tokens 1 end]
     } else {
         return ""
@@ -282,11 +284,11 @@ proc complie_varDec { tokens_name } {
     
     # type
     set type [complie_type tokens]
-    set output "$output\t${type}"
+    set output "$output  $type"
     
     # varName
     set var_name [complie_varName tokens]
-    set output "$output\t${var_name}"
+    set output "$output  $var_name"
     
     # ("," varName)*
     set i 0
@@ -294,20 +296,21 @@ proc complie_varDec { tokens_name } {
         set label [dict get $ntoken label]
         set token [dict get $ntoken token]
         if { $label == "symbol" && $token == "," && ($i % 2) == 0 } {
-            set output "$output\t<symbol>,</symbol>\n"
+            set output "$output  <symbol> , </symbol>\n"
             set tokens [lrange $tokens 1 end] 
         } elseif { $label == "identifier" && [is_valid_identifier $token] && ($i % 2) == 1 } {
-            set output "$output\t<identifier>$token</identifier>\n"
+            set output "$output  <identifier> $token </identifier>\n"
             set tokens [lrange $tokens 1 end]
         } else {
             break
         }
         incr i
     }
+
     # ;
     set symbol [complie_symbol tokens ";"]
     if { $symbol != "" } {
-        set output "$output\t${symbol}"
+        set output "$output  $symbol"
     } else {
         error "invalid statement missing ;. in complie_varDec"
     }
@@ -319,12 +322,17 @@ proc complie_varDec { tokens_name } {
 proc complie_type { tokens_name } {
     upvar 1 $tokens_name tokens
 
+    set output ""
     set next_token [lindex $tokens 0]
     set label [dict get $next_token label]
     set token [dict get $next_token token]
+    puts "label: $label, token: $token // in complie_type"
     if { $label == "keyword" && [is_type $token] } {
-        set output "<keyword>$token</keyword>\n"
+        set output "<keyword> $token </keyword>\n"
         set tokens [lrange $tokens 1 end]
+    } elseif { $label == "identifier" && [is_valid_identifier $token] } {
+        set output "<identifier> $token </identifier>\n"
+        set tokens [lrange $tokens 1 end] 
     }
     return $output
 }
@@ -332,11 +340,12 @@ proc complie_type { tokens_name } {
 proc complie_varName { tokens_name } {
     upvar 1 $tokens_name tokens
 
+    set output ""
     set next_token [lindex $tokens 0]
     set label [dict get $next_token label]
     set token [dict get $next_token token]
     if { $label == "identifier" && [is_valid_identifier $token] } {
-        set output "<identifier>$token</identifier>\n"
+        set output "<identifier> $token </identifier>\n"
         set tokens [lrange $tokens 1 end]
     }
     return $output

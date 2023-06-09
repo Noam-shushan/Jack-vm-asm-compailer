@@ -8,15 +8,16 @@
 # returnStatement -> "return" expression? ";"
 
 source "symbols.tcl"
-source "expressions.tcl"
+source "expression.tcl"
 
 proc complie_statements { tokens_name } {
     upvar 1 $tokens_name tokens
     
+    puts "in complie_statements"
     set output "<statements>\n"
     set statement [complie_statement tokens]
     while { statement != "" } {
-        set output "$output\t$statement"
+        set output "$output  $statement"
         set statement [complie_statement tokens]
     }
     set output "$output</statements>\n"
@@ -29,6 +30,7 @@ proc complie_statement { tokens_name } {
     set next_token [lindex $tokens 0]
     set label [dict get $next_token label]
     set token [dict get $next_token token]
+    puts "next_token: $next_token // in complie_statement"
     if { $label == "keyword" } {
         switch $token {
             "let" {
@@ -60,57 +62,64 @@ proc complie_letStatement { tokens_name } {
     upvar 1 $tokens_name tokens
 
     # let
-    set output "<letStatement>\n\t<keyword>let</keyword>\n"
+    set output "<letStatement>\n  <keyword> let </keyword>\n"
     set tokens [lrange $tokens 1 end]
     
     set next_token [lindex $tokens 0]
     set label [dict get $next_token label]
     set token [dict get $next_token token]
     # varName 
-    if { $label == "identifier" && [is_valid_identifier] $token } {
-        set output "$output\t<identifier>$token</identifier>\n"
+    if { $label == "identifier" && [is_valid_identifier $token] } {
+        set output "$output  <identifier> $token </identifier>\n"
         set tokens [lrange $tokens 1 end]
     } else {
         error "invalid varName"
     }
+
+    puts "output:\n $output //in complie_letStatement before \[expression\]"
+
     # ("[" expression "]")?
     set next_token [lindex $tokens 0]
     set label [dict get $next_token label]
     set token [dict get $next_token token]
     if { $label == "symbol" && $token == "\[" } {
         # [
-        set output "$output\t<symbol>\[</symbol>\n"
+        set output "$output  <symbol> \[ </symbol>\n"
         set tokens [lrange $tokens 1 end]
         
         # expression
         set expression [complie_expression tokens]
-        set output "$output\t$expression"
+        set output "$output  $expression"
         
         # ]
         set symbol [complie_symbol tokens "]"]
         if { $symbol != "" } {
-            set output "$output\t$symbol"
+            set output "$output  $symbol"
         } else {
             error "invalid statement missing ]"
         }
     }
 
+    puts "output:\n $output //in complie_letStatement before ="
+
     # =
     set symbol [complie_symbol tokens "="]
     if { $symbol != "" } {
-        set output "$output\t$symbol"
+        set output "$output  $symbol"
     } else {
         error "invalid statement missing ="
     }
     
     # expression
     set expression [complie_expression tokens]
-    set output "$output\t$expression"
+    set output "$output  $expression"
+
+    puts "output:\n $output //in complie_letStatement before ;"
     
     # ;
     set symbol [complie_symbol tokens ";"]
     if { $symbol != "" } {
-        set output "$output\t$symbol"
+        set output "$output  $symbol"
     } else {
         error "invalid statement missing ;"
     }
@@ -123,25 +132,25 @@ proc complie_letStatement { tokens_name } {
 proc complie_ifStatement { tokens_name } {
     upvar 1 $tokens_name tokens
 
-    set output "<ifStatement>\n\t<keyword>if</keyword>\n"
+    set output "<ifStatement>\n  <keyword> if </keyword>\n"
     set tokens [lrange $tokens 1 end]
 
     # (
     set symbol [complie_symbol tokens "("]
     if { $symbol != "" } {
-        set output "$output\t$symbol"
+        set output "$output  $symbol"
     } else {
         error "invalid statement missing ("
     }
 
     # expression
     set expression [complie_expression tokens]
-    set output "$output\t$expression"
+    set output "$output  $expression"
     
     # )
     set symbol [complie_symbol tokens ")"]
     if { $symbol != "" } {
-        set output "$output\t$symbol"
+        set output "$output  $symbol"
     } else {
         error "invalid statement missing )"
     }
@@ -149,19 +158,19 @@ proc complie_ifStatement { tokens_name } {
     # {
     set symbol [complie_symbol tokens "{"]
     if { $symbol != "" } {
-        set output "$output\t$symbol"
+        set output "$output  $symbol"
     } else {
         error "invalid statement missing {"
     }
     
     # statements
     set statements [complie_statements tokens]
-    set output "$output\t$statements"
+    set output "$output  $statements"
     
     # }
     set symbol [complie_symbol tokens "}"]
     if { $symbol != "" } {
-        set output "$output\t$symbol"
+        set output "$output  $symbol"
     } else {
         error "invalid statement missing }"
     }
@@ -170,22 +179,22 @@ proc complie_ifStatement { tokens_name } {
     set label [dict get $next_token label]
     set token [dict get $next_token token]
     if { $label == "keyword" && $token == "else" } {
-        set output "$output\t<keyword>else</keyword>\n"
+        set output "$output  <keyword> else </keyword>\n"
         set tokens [lrange $tokens 1 end]
         # {
         set symbol [complie_symbol tokens "{"]
         if { $symbol != "" } {
-            set output "$output\t$symbol"
+            set output "$output  $symbol"
         } else {
             error "invalid statement missing {"
         }
         # statements
         set statements [complie_statements tokens]
-        set output "$output\t$statements"
+        set output "$output  $statements"
         # }
         set symbol [complie_symbol tokens "}"]
         if { $symbol != "" } {
-            set output "$output\t$symbol"
+            set output "$output  $symbol"
         } else {
             error "invalid statement missing }"
         }
@@ -198,40 +207,40 @@ proc complie_ifStatement { tokens_name } {
 proc complie_whileStatement { tokens_name } {
     upvar 1 $tokens_name tokens
 
-    set output "<whileStatement>\n\t<keyword>while</keyword>\n"
+    set output "<whileStatement>\n  <keyword> while </keyword>\n"
     set tokens [lrange $tokens 1 end]
 
     # (
     set symbol [complie_symbol tokens "("]
     if { $symbol != "" } {
-        set output "$output\t$symbol"
+        set output "$output  $symbol"
     } else {
         error "invalid statement missing (, in statements.tcl in complie_whileStatement"
     }
     # expression
     set expression [complie_expression tokens]
-    set output "$output\t$expression"
+    set output "$output  $expression"
     # )
     set symbol [complie_symbol tokens ")"]
     if { $symbol != "" } {
-        set output "$output\t$symbol"
+        set output "$output  $symbol"
     } else {
         error "invalid statement missing ). in statements.tcl in complie_whileStatement"
     }
     # {
     set symbol [complie_symbol tokens "{"]
     if { $symbol != "" } {
-        set output "$output\t$symbol"
+        set output "$output  $symbol"
     } else {
         error "invalid statement missing {. in statements.tcl in complie_whileStatement"
     }
     # statements
     set statements [complie_statements tokens]
-    set output "$output\t$statements"
+    set output "$output  $statements"
     # }
     set symbol [complie_symbol tokens "}"]
     if { $symbol != "" } {
-        set output "$output\t$symbol"
+        set output "$output  $symbol"
     } else {
         error "invalid statement missing }. in statements.tcl in complie_whileStatement"
     }
@@ -243,16 +252,16 @@ proc complie_whileStatement { tokens_name } {
 proc complie_doStatement { tokens_name } {
     upvar 1 $tokens_name tokens
 
-    set output "<doStatement>\n\t<keyword>do</keyword>\n"
+    set output "<doStatement>\n  <keyword> do </keyword>\n"
     set tokens [lrange $tokens 1 end]
 
     # subroutineCall
     set subroutineCall [complie_subroutineCall tokens]
-    set output "$output\t$subroutineCall"
+    set output "$output  $subroutineCall"
     # ;
     set symbol [complie_symbol tokens ";"]
     if { $symbol != "" } {
-        set output "$output\t$symbol"
+        set output "$output  $symbol"
     } else {
         error "invalid statement missing ; in statements.tcl in complie_doStatement"
     }
@@ -264,7 +273,7 @@ proc complie_doStatement { tokens_name } {
 proc complie_returnStatement { tokens_name } {
     upvar 1 $tokens_name tokens
 
-    set output "<returnStatement>\n\t<keyword>return</keyword>\n"
+    set output "<returnStatement>\n  <keyword> return </keyword>\n"
     set tokens [lrange $tokens 1 end]
 
     # expression?
@@ -272,15 +281,15 @@ proc complie_returnStatement { tokens_name } {
     set label [dict get $next_token label]
     set token [dict get $next_token token]
     if { $label == "symbol" && $token == ";" } {
-        set output "$output\t<symbol>;</symbol>\n"
+        set output "$output  <symbol> ; </symbol>\n"
         set tokens [lrange $tokens 1 end]
     } else {
         set expression [complie_expression tokens]
-        set output "$output\t$expression"
+        set output "$output  $expression"
         # ;
         set symbol [complie_symbol tokens ";"]
         if { $symbol != "" } {
-            set output "$output\t$symbol"
+            set output "$output  $symbol"
         } else {
             error "invalid statement missing ; in statements.tcl in complie_returnStatement"
         }
