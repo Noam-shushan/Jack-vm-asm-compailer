@@ -8,7 +8,7 @@ proc get_xml_content {file_conntent} {
     set raw_tokens [lindex [split [string trim $line] "</"] 1]
     set label [string trim [lindex [split $raw_tokens ">"] 0]]
     set token [string trim [lindex [split $raw_tokens ">"] 1]]
-    if { $label != "tokens" && $token != "" } {  
+    if { $label != "tokens" && $token != "" } {
       set lable_token_dict [dict create "label" $label "token" $token]
       lappend tokens_list $lable_token_dict
     }
@@ -17,7 +17,7 @@ proc get_xml_content {file_conntent} {
 }
 
 
-proc main {dir} { 
+proc main {dir} {
   set tokens_files [glob -directory $dir -types f -tails *T.xml]
   foreach file $tokens_files {
     # get tokens from file
@@ -27,7 +27,7 @@ proc main {dir} {
     # set parsed_tokens [parse_tokens $tokens]
     # set converted_to_xml [convert_to_xml $parsed_tokens]
     # # write to parsed files
-    # write_file $dir/[string range $file 0 end-5].xml $converted_to_xml  
+    # write_file $dir/[string range $file 0 end-5].xml $converted_to_xml
   }
 }
 

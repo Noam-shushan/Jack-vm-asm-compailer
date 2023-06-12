@@ -34,3 +34,28 @@ proc is_keyword_constant {token} {
     global KEYWORD_CONTANS
     return [expr [lsearch -exact $KEYWORD_CONTANS $token] != -1]
 }
+
+proc new_node { old_xml new_xml indent_level } {
+    set base_space "  "
+    set space [string repeat $base_space $indent_level]
+    return "$old_xml$space$new_xml"
+}
+
+proc is_subroutineCall { tokens } {
+    set first [lindex $tokens 0]
+    set next_label [dict get $first label]
+    set next_token [dict get $first token]
+
+    set second [lindex $tokens 1]
+    set second_token [dict get $second token]
+    set second_label [dict get $second label]
+
+    if { $next_label == "identifier" && $second_label == "symbol" && $second_token == "(" } {
+        return 1
+    } elseif { $next_label == "identifier" && $second_label == "symbol" && $second_token == "." } {
+        return 1
+    } else {
+        return 0
+    }
+}
+

@@ -1,13 +1,9 @@
-
-source "helper_func.tcl"
-source "program_structure.tcl"
-
 # each token is a dict with the following keys:
 #   label: the token type
 #   token: the token value
 # for example: { label: "symbol", token: "}" }
 # or { label: "identifier", token: "foo" }
-# 
+#
 # the jack grammer is as follows:
 
 # Lexical Elements:
@@ -46,6 +42,11 @@ source "program_structure.tcl"
 # className -> identifier
 # subroutineName -> identifier
 # varName -> identifier
+
+
+source "helper_func.tcl"
+source "program_structure.tcl"
+
 
 proc complie { tokens } {
     set result [complie_class tokens]

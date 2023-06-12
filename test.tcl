@@ -51,4 +51,15 @@ set my_list {1 2 3 4 5}
 p0 my_list
 puts $my_list
 
+proc new_node { old_xml new_xml indent_level } {
+    set base_space "  "
+    set space [string repeat $base_space $indent_level]
+    return "$old_xml$space$new_xml"
+}
+
+set nn [new_node "<class>\n  <keyword> class </keyword>\n" "<classVarDec>\n" 1]
+puts $nn 
+
+
+
 
