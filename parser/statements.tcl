@@ -12,9 +12,8 @@ source "expression.tcl"
 
 proc complie_statements { tokens_name indent_level } {
     upvar 1 $tokens_name tokens
-
     incr indent_level
-    puts "in complie_statements"
+
     set output "<statements>\n"
     set statement [complie_statement tokens $indent_level]
     while { $statement != "" } {
@@ -33,7 +32,7 @@ proc complie_statement { tokens_name indent_level } {
     set next_token [lindex $tokens 0]
     set label [dict get $next_token label]
     set token [dict get $next_token token]
-    puts "next_token: $next_token // in complie_statement"
+
     if { $label == "keyword" } {
         switch $token {
             "let" {
@@ -71,6 +70,7 @@ proc complie_letStatement { tokens_name indent_level} {
     set next_token [lindex $tokens 0]
     set label [dict get $next_token label]
     set token [dict get $next_token token]
+
     # varName
     if { $label == "identifier" && [is_valid_identifier $token] } {
         set output [new_node $output "<identifier> $token </identifier>\n" $indent_level]
@@ -78,8 +78,6 @@ proc complie_letStatement { tokens_name indent_level} {
     } else {
         error "invalid varName"
     }
-
-    puts "output:\n $output //in complie_letStatement before \[expression\]"
 
     # ("[" expression "]")?
     set next_token [lindex $tokens 0]
@@ -103,8 +101,6 @@ proc complie_letStatement { tokens_name indent_level} {
         }
     }
 
-    puts "output:\n $output //in complie_letStatement before ="
-
     # =
     set symbol [complie_symbol tokens "="]
     if { $symbol != "" } {
@@ -117,17 +113,11 @@ proc complie_letStatement { tokens_name indent_level} {
     set expression [complie_expression tokens $indent_level]
     set output [new_node $output $expression $indent_level]
 
-    puts "output:\n $output //in complie_letStatement before ;"
-
     # ;
     set symbol [complie_symbol tokens ";"]
     if { $symbol != "" } {
         set output [new_node $output $symbol $indent_level]
     } else {
-        set next_token [lindex $tokens 0]
-        set label [dict get $next_token label]
-        set token [dict get $next_token token]
-        puts "next_token: $next_token //in complie_letStatement before ;"
         error "invalid statement missing ;"
     }
 
@@ -150,16 +140,11 @@ proc complie_ifStatement { tokens_name indent_level } {
     } else {
         error "invalid statement missing (. in complie_ifStatement"
     }
-    puts "$output //in complie_ifStatement before expression"
 
     # expression
     set expression [complie_expression tokens $indent_level]
     set output [new_node $output $expression $indent_level]
 
-    puts "$output //in complie_ifStatement before ) after expression"
-
-    set next_token [lindex $tokens 0]
-    puts "next_token: $next_token //in complie_ifStatement before ) after expression"
     # )
     set symbol [complie_symbol tokens ")"]
     if { $symbol != "" } {

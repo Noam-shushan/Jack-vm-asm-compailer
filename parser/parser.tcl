@@ -50,6 +50,5 @@ source "program_structure.tcl"
 
 proc complie { tokens } {
     set result [complie_class tokens]
-    puts $result
     return $result
 }

@@ -59,3 +59,36 @@ proc is_subroutineCall { tokens } {
     }
 }
 
+set TERM_START [list "(" "~" "-" ]
+set TERM_LABELS [list "integerConstant" "stringConstant" "identifier" "keyword" ]
+proc is_term_start { label token } {
+    global TERM_START
+    global TERM_LABELS
+    if { [expr [lsearch -exact $TERM_START $token] != -1] && $label == "symbol" } {
+        return 1
+    } elseif { [expr [lsearch -exact $TERM_LABELS $label] != -1] } {
+        return 1
+    } else {
+        return 0
+    }
+}
+
+
+set START_EXP [list "(" "\[" "=" ]
+proc is_expression_start { label token } {
+    global START_EXP
+    if { [expr [lsearch -exact $START_EXP $token] != -1] && $label == "symbol" } {
+        return 1
+    } elseif { $label == "integerConstant" || $label == "stringConstant" || $label == "identifier" || $label == "keyword" } {
+        return 1
+    } else {
+        return 0
+    }
+}
+
+set TERMINATING_EXP [list ";" "," "]" ")"]
+proc is_expression_terminate { token } {
+    global TERMINATING_EXP
+    return [expr [lsearch -exact $TERMINATING_EXP $token] != -1]
+}
+

@@ -45,13 +45,11 @@ proc complie_class { tokens_name } {
 
     # {
     set symbol [complie_symbol tokens "\{"]
-    puts "symbol: $symbol"
     if { $symbol != "" } {
         set output [new_node $output $symbol $indent_level]
     } else {
         error "invalid statement missing '\{'. in complie_class"
     }
-    puts "output:\n$output"
     set next_token [lindex $tokens 0]
 
     # classVarDec*
@@ -60,16 +58,13 @@ proc complie_class { tokens_name } {
         set output [new_node $output $class_var_dec $indent_level]
         set class_var_dec [complie_classVarDec tokens $indent_level]
     }
-    puts "output:\n$output // after complie_classVarDec"
 
     # subroutineDec*
     set subroutine [complie_subroutine tokens $indent_level]
     while { $subroutine != "" } {
         set output [new_node $output $subroutine $indent_level]
-        puts "output:\n$output // while complie_subroutine"
         set subroutine [complie_subroutine tokens $indent_level]
     }
-    puts "output:\n$output // after complie_subroutine"
 
     # }
     set symbol [complie_symbol tokens "\}"]
@@ -144,7 +139,6 @@ proc complie_subroutine { tokens_name indent_level } {
     set next_token [lindex $tokens 0]
     set label [dict get $next_token label]
     set token [dict get $next_token token]
-    puts "label: $label, token: $token // in complie_subroutine before all"
     if { [is_subroutine $token] } {
         set output [new_node "<subroutineDec>\n" "<keyword> $token </keyword>\n" $indent_level]
         set tokens [lrange $tokens 1 end]
@@ -156,21 +150,21 @@ proc complie_subroutine { tokens_name indent_level } {
     set next_token [lindex $tokens 0]
     set label [dict get $next_token label]
     set token [dict get $next_token token]
-    puts "label: $label, token: $token // in complie_subroutine before void or type"
     if { $label == "keyword" && [is_type $token] } {
         set output [new_node $output "<keyword> $token </keyword>\n" $indent_level]
+        set tokens [lrange $tokens 1 end]
+    } elseif { $label == "identifier" && [is_valid_identifier $token] } {
+        set output [new_node $output "<identifier> $token </identifier>\n" $indent_level]
         set tokens [lrange $tokens 1 end]
     } else {
         error "ERROR: expected void or type after subroutineDec"
     }
 
-    puts "output:\n$output // before subroutineName"
     # subroutineName
     set next_token [lindex $tokens 0]
     set label [dict get $next_token label]
     set token [dict get $next_token token]
     if { $label == "identifier" && [is_valid_identifier $token] } {
-        puts "label: $label, token: $token // subroutineName"
         set output [new_node $output "<identifier> $token </identifier>\n" $indent_level]
         set tokens [lrange $tokens 1 end]
     } else {
@@ -185,8 +179,6 @@ proc complie_subroutine { tokens_name indent_level } {
         error "invalid statement missing (. in complie_subroutine"
     }
 
-    puts "output:\n$output // before parameterList"
-
     # parameterList
     set parameter_list [complie_parameterList tokens $indent_level]
     set output [new_node $output $parameter_list $indent_level]
@@ -198,8 +190,6 @@ proc complie_subroutine { tokens_name indent_level } {
     } else {
         error "invalid statement missing ). in complie_subroutine"
     }
-
-    puts "output:\n$output // before subroutineBody"
 
     # subroutineBody
     set subroutine_body [complie_subroutineBody tokens $indent_level]
@@ -219,7 +209,6 @@ proc complie_parameterList { tokens_name indent_level } {
     foreach ntoken $tokens {
         set label [dict get $ntoken label]
         set token [dict get $ntoken token]
-        puts "label: $label, token: $token // in complie_parameterList"
         if { $label == "keyword" && [is_type $token] && ($i % 3) == 0 } {
             set output [new_node $output "<keyword> $token </keyword>\n" $indent_level]
             set tokens [lrange $tokens 1 end]
@@ -251,8 +240,6 @@ proc complie_subroutineBody { tokens_name indent_level } {
     set symbol [complie_symbol tokens "\{"]
     set output [new_node $output $symbol $indent_level]
 
-    puts "output:\n$output // before varDec*"
-
     # varDec*
     set var_dec [complie_varDec tokens $indent_level]
     while { $var_dec != "" } {
@@ -260,13 +247,9 @@ proc complie_subroutineBody { tokens_name indent_level } {
         set var_dec [complie_varDec tokens $indent_level]
     }
 
-    puts "output:\n$output // before statements after varDec*"
-
     # statements
     set statements [complie_statements tokens $indent_level]
     set output [new_node $output $statements $indent_level]
-
-    puts "output:\n$output // after statements"
 
     # }
     set symbol [complie_symbol tokens "\}"]
