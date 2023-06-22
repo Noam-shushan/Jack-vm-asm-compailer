@@ -34,7 +34,7 @@ proc parse_line_to_tokens {line} {
     set symbols_reg {[()\[\]\{\},;=\.]}
     set operators_reg {[+\-*/&|~<>]}
     set reserved_words_reg {\y(?:class|constructor|method|function|int|boolean|char|static|field|let|do|if|else|while|return|true|false|null|this|var)\y}
-    set string_reg {[\"]} 
+    set string_reg {[\"]}
     set identifier_reg {\w+}
     set int_const_reg {\d+}
 
@@ -47,8 +47,8 @@ proc parse_line_to_tokens {line} {
     set string {}
 
     foreach token $tokens {
-        if {$is_in_string} { 
-        #   if we are in a string, we need to check if we have reached the end of the string 
+        if {$is_in_string} {
+            #   if we are in a string, we need to check if we have reached the end of the string
             if {$token == "\""} {
                 lappend result [list [join $string " "] $STRING_CONST]
                 set string {}
@@ -57,20 +57,20 @@ proc parse_line_to_tokens {line} {
                 lappend string $token
             }
         } elseif {$token == "\""} {
-        #  if we are not in a string, we need to check if we have reached the start of a string
+            #  if we are not in a string, we need to check if we have reached the start of a string
             set is_in_string 1
         } elseif {[lsearch -exact $symbols $token] != -1} {
-        #  check if token is a symbol
+            #  check if token is a symbol
             lappend result [list $token $SYMBOL]
         } elseif {[lsearch -exact $reserved_words $token] != -1} {
-        #  check if token is a reserved word
+            #  check if token is a reserved word
             lappend result [list $token $KEYWORD]
         } elseif {[string is integer -strict $token]} {
-        #  check if token is an integer constant
+            #  check if token is an integer constant
             lappend result [list $token $INT_CONST]
         } elseif {[lsearch -exact $operators $token] != -1} {
-        #  check if token is an operator
-        # handle XML special characters
+            #  check if token is an operator
+            # handle XML special characters
             if {$token == "<"} {
                 lappend result [list "&lt;" $SYMBOL]
             } elseif {$token == ">"} {
@@ -81,10 +81,10 @@ proc parse_line_to_tokens {line} {
                 lappend result [list $token $SYMBOL]
             }
         } elseif {[string is space $token]} {
-        #  ignore spaces
+            #  ignore spaces
             continue
         } else {
-        #  dosen't match any of the above => identifier
+            #  dosen't match any of the above => identifier
             lappend result [list $token $IDENTIFIER]
         }
     }
@@ -100,19 +100,32 @@ proc get_xml_token {token token_type} {
 }
 
 # This function takes in the filename of a Jack file and generates an XML representation of the Jack file.
-# :param filename: filename of Jack file
-proc generate_xml_file {filename} {
-    set xml_filename [file rootname $filename]T.xml
+# :param file_name: file name of Jack file
+proc tokenize_file { file_name } {
+    set xml_filename [file rootname $file_name]T.xml
+    puts "$xml_filename"
     set xml_file [open $xml_filename "w"]
     puts $xml_file "<tokens>"
-    foreach line [get_jack_file_lines $filename] {
-        foreach token [parse_line_to_tokens $line] {
+    set jack_code [get_jack_file_lines $file_name]
+    foreach line $jack_code {
+        set parsed_line [parse_line_to_tokens $line]
+        foreach token $parsed_line {
             lassign $token t tt
             puts $xml_file "\t[get_xml_token $t $tt]"
         }
     }
     puts $xml_file "</tokens>"
     close $xml_file
+}
+
+proc tokenize_dir { dir_name } {
+    set files [glob -directory $dir_name -types f -tails *.jack]
+    puts $files
+
+    foreach file $files {
+        tokenize_file $dir_name/$file
+        puts "Tokenized $file"
+    }
 }
 
 # This function takes in the filename of a Jack file and returns a list of code lines in the file with no comments.
