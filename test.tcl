@@ -29,26 +29,29 @@ if {[is_even $x]} {
     puts "x is even"
 }
 
-proc p0 {my_list_name} {
-    upvar 1 $my_list_name my_list
-
-    while { [llength $my_list] > 0} {
-        p1 my_list
-        set item [lindex $my_list 0]
-        puts "my list: $my_list, item: $item"
+proc print_queue {my_queue_name} {
+    # get the queue reference
+    upvar 1 $my_queue_name my_queue
+    while { [llength $my_queue] > 0} {
+        set item [pop my_queue]
+        puts "item: $item"
     }
 }
 
-proc p1 {my_list_name} {
-    upvar 1 $my_list_name my_list
-    set my_list [lrange $my_list 1 end]
-    set my_list [lrange $my_list 1 end]
+proc pop {my_queue_name} {
+    # get the queue reference
+    upvar 1 $my_queue_name my_queue
+    # get the first item
+    set item [lindex $my_queue 0]
+    # remove the first item
+    set my_queue [lrange $my_queue 1 end]
+    return $item
 }
 
 # Example usage
-set my_list {1 2 3 4 5 6 7 8 9}
-p0 my_list
-puts $my_list
+set my_queue {1 2 3 4 5 6 7 8 9}
+print_queue my_queue
+puts $my_queue
 
 proc new_node { old_xml new_xml indent_level } {
     set base_space "  "
@@ -59,7 +62,18 @@ proc new_node { old_xml new_xml indent_level } {
 set nn [new_node "<class>\n  <keyword> class </keyword>\n" "<classVarDec>\n" 1]
 puts $nn
 
+oo::class create Person {
+    variable name
+    constructor {name} {
+        name $name
+    }
 
+    method print_name {} {
+        puts "name: $name"
+    }
+}
 
+set p1 [Person new "John"]
+$p1 print_name
 
 

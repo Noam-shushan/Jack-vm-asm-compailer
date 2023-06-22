@@ -5,8 +5,6 @@ proc is_type {type} {
     return [expr [lsearch -exact $TYPES $type] != -1]
 }
 
-
-
 set SUBROUTINE_TOKENS [list "function" "method" "constructor" ]
 proc is_subroutine {token} {
     global SUBROUTINE_TOKENS

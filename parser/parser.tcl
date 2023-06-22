@@ -47,8 +47,41 @@
 source "helper_func.tcl"
 source "program_structure.tcl"
 
+proc get_xml_content { file_conntent } {
+    set file_content_list [split $file_conntent "\n"]
+    set tokens_list [list]
+    foreach line $file_content_list {
+        set raw_tokens [lindex [split [string trim $line] "</"] 1]
+        set label [string trim [lindex [split $raw_tokens ">"] 0]]
+        set token [string trim [lindex [split $raw_tokens ">"] 1]]
+        if { $line == "<symbol> / </symbol>" } {
+            set lable_token_dict [dict create "label" "symbol" "token" "/"]
+            lappend tokens_list $lable_token_dict
+        }
+        if { $label != "tokens" && $token != "" } {
+            set lable_token_dict [dict create "label" $label "token" $token]
+            lappend tokens_list $lable_token_dict
+        }
+    }
+    return $tokens_list
+}
+
+
+proc parse_dir { dir_name } {
+    set tokens_files [glob -directory $dir_name -types f -tails *T.xml]
+    foreach file $tokens_files {
+        # get tokens from file
+        set file_xml_conntent [read_file $dir_name/$file]
+        set tokens [get_xml_content $file_xml_conntent]
+        set xml_tree_result [complie $tokens]
+        set file_name [string range $file 0 end-5]
+        write_file $dir_name/$file_name.xml $xml_tree_result
+        puts "file $file_name.xml created"
+    }
+}
 
 proc complie { tokens } {
     set result [complie_class tokens]
     return $result
 }
+
