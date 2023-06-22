@@ -9,8 +9,9 @@
 # className -> identifier
 # subroutineName -> identifier
 # varName -> identifier
+set _curr_dir [file dirname [info script]]
 
-source "helper_func.tcl"
+source "[file normalize .]helper_func.tcl"
 source "symbols.tcl"
 source "statements.tcl"
 

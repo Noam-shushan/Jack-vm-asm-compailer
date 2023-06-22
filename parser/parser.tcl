@@ -41,8 +41,7 @@
 # type -> "int" | "void" | "boolean" | className
 # className -> identifier
 # subroutineName -> identifier
-# varName -> identifier
-
+# varName -> identifier"
 
 source "helper_func.tcl"
 source "program_structure.tcl"
