@@ -7,8 +7,8 @@
 # doStatement -> "do" subroutineCall ";"
 # returnStatement -> "return" expression? ";"
 
-source "symbols.tcl"
-source "expression.tcl"
+# source "symbols.tcl"
+# source "expression.tcl"
 
 proc complie_statements { tokens_name indent_level } {
     upvar 1 $tokens_name tokens

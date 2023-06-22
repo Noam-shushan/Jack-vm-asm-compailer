@@ -9,11 +9,11 @@
 # className -> identifier
 # subroutineName -> identifier
 # varName -> identifier
-set _curr_dir [file dirname [info script]]
+# set _curr_dir [file dirname [info script]]
 
-source "[file normalize .]helper_func.tcl"
-source "symbols.tcl"
-source "statements.tcl"
+# source "[file normalize .]helper_func.tcl"
+# source "symbols.tcl"
+# source "statements.tcl"
 
 # class -> "class" className "{" classVarDec* subroutineDec* "}"
 proc complie_class { tokens_name } {

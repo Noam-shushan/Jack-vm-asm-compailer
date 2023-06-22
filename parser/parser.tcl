@@ -42,9 +42,8 @@
 # className -> identifier
 # subroutineName -> identifier
 # varName -> identifier"
-
-source "helper_func.tcl"
-source "program_structure.tcl"
+# source "helper_func.tcl"
+# source "program_structure.tcl"
 
 proc get_xml_content { file_conntent } {
     set file_content_list [split $file_conntent "\n"]

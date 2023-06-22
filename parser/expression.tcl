@@ -6,12 +6,8 @@
 # keywordConstant -> "true" | "false" | "null" | "this"
 # op -> "+" | "-" | "*" | "/" | "&amp;" | "|" | "&lt;" | "&gt;" | "="
 # unaryOp -> "-" | "~"
-
-if {[info script] eq $argv0} {
-    puts "This is a module, it should not be executed directly."
-    source "helper_func.tcl"
-    source "symbols.tcl"
-}
+    # source "helper_func.tcl"
+    # source "symbols.tcl"
 
 # expressionList -> (expression ("," expression)* )?
 proc complie_expressionList { tokens_name indent_level } {
