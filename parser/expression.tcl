@@ -7,8 +7,11 @@
 # op -> "+" | "-" | "*" | "/" | "&amp;" | "|" | "&lt;" | "&gt;" | "="
 # unaryOp -> "-" | "~"
 
-source "helper_func.tcl"
-source "symbols.tcl"
+if {[info script] eq $argv0} {
+    puts "This is a module, it should not be executed directly."
+    source "helper_func.tcl"
+    source "symbols.tcl"
+}
 
 # expressionList -> (expression ("," expression)* )?
 proc complie_expressionList { tokens_name indent_level } {
