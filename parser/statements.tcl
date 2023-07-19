@@ -6,9 +6,8 @@
 # letStatement -> "let" varName ("[" expression "]")? "=" expression ";"
 # doStatement -> "do" subroutineCall ";"
 # returnStatement -> "return" expression? ";"
-
-source "symbols.tcl"
-source "expression.tcl"
+source [file join [file dirname [info script]] "symbols.tcl"]
+source [file join [file dirname [info script]] "expression.tcl"]
 
 proc complie_statements { tokens_name indent_level } {
     upvar 1 $tokens_name tokens

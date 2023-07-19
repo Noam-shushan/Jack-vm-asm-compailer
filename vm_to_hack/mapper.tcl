@@ -1,14 +1,14 @@
-source "compute_cmd.tcl"
-source "flow_ctlr_cmd.tcl"
-source "stack_cmd/push_cmd.tcl"
-source "stack_cmd/pop_cmd.tcl"
-source "function_call.tcl"
+source [file join [file dirname [info script]] "compute_cmd.tcl"]
+source [file join [file dirname [info script]] "flow_ctlr_cmd.tcl"]
+source [file join [file dirname [info script]] "stack_cmd/push_cmd.tcl"]
+source [file join [file dirname [info script]] "stack_cmd/pop_cmd.tcl"]
+source [file join [file dirname [info script]] "function_call.tcl"]
 
 # map line of vm code to hack code
 proc map_line {line file_name} {
     set line_split [split $line " "]
     puts "map_line -> line_split: $line_split"
-    
+
     switch [llength $line_split] {
         1 {
             set cmd [lindex $line_split 0]
@@ -18,9 +18,9 @@ proc map_line {line file_name} {
         2 {
             set cmd [lindex $line_split 0]
             set label [lindex $line_split 1]
-            
+
             puts "map_line -> cmd: $cmd, label: $label"
-            
+
             return [map_tow_literal_cmd $cmd $label $file_name]
         }
         3 {

@@ -1,5 +1,6 @@
-source "mapper.tcl"
-source "function_call.tcl"
+source [file join [file dirname [info script]] "mapper.tcl"]
+source [file join [file dirname [info script]] "function_call.tcl"]
+
 
 
 proc vm_to_hack { dir } {

@@ -707,7 +707,7 @@ proc tokenizer {data} {
 				set result "$result$tmp"
 			}
 		} elseif  {($char_value >= 97 && $char_value <= 122) || ($char_value >= 65 && $char_value <= 90) || $char_value == 95} {
-			set temp [handle_char $txt]
+			set temp [handleChar $txt]
 			set txt [lindex $temp 0]
 			set tmp [lindex $temp 1]
 			if {$tmp !=""} {
@@ -745,7 +745,7 @@ proc tokenizer {data} {
 	return $result
 }
 
-proc handle_char {txt } {
+proc handleChar {txt } {
 	global CURRENT_VALUE
 	global CURRENT_TOKEN
 	global KEYWORDS
@@ -1009,29 +1009,20 @@ puts $currentToken
 # main.tcl \
 exec tclsh "$0" ${1+"$@"}
 
+source "file_handler.tcl"
 
-# source "../tokenizer/tokenizer.tcl"
-# source "../file_handler.tcl"
-
-# puts "Enter a file full path: "
-
-# # C:\Users\POSEIDON\nand2tetrisFolder\nand2tetris\projects\11\Pong
-
-# set answer ""
-
-
-# tokenize_dir $root
-
-set jackT_files [glob -directory $root -nocomplain -type f *T.xml]
-foreach jack_tokens_file $jackT_files {
-	set file_path [file join $root $jack_file]
-	set file_name_with_ex [file tail $file_path]
-	set file_name_without_ex [file rootname $file_name_with_ex]
-	set file_content [read_file $file_path]
-
-	set answer [init $answer]
-	set write_file [open "$root/[file rootname  [file tail $file_path]].vm"  w+]
-	puts $write_file $answer
-	close $write_file
+proc jack_to_vm { dir } {
+	set answer ""
+	set parsed_files [glob -directory $root -nocomplain -type f *.xml]
+	foreach parsed_file $parsed_files {
+		set file_content [read_file $parsed_file]
+		set answer [init $file_content]
+		set vm_file_name [file rootname  [file tail $parsed_file]].vm
+		set vm_file_path [file join $dir $vm_file_name]
+		write_file $vm_file_path $answer
+		puts "wrote $vm_file_path"
+	}
 }
+
+
 
