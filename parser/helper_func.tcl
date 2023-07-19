@@ -72,7 +72,7 @@ proc is_term_start { label token } {
 }
 
 
-set START_EXP [list "(" "\[" "=" ]
+set START_EXP [list "(" "\[" "=" ]]
 proc is_expression_start { label token } {
     global START_EXP
     if { [expr [lsearch -exact $START_EXP $token] != -1] && $label == "symbol" } {
